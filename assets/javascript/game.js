@@ -2,11 +2,14 @@ var battleBGM = document.createElement("audio");
 var selectBGM = document.createElement("audio");
 battleBGM.setAttribute("src", "./assets/trainer-battle.mp3");
 selectBGM.setAttribute("src", "./assets/select.mp3");
-var $aiBattle = $("#ai-pokemon");
+var $mainContainer = $(".main-container");
+var $aiBattle = $("#ai-pokemon"); //this is the ai pokemon sprite
 var $battleWindow = $(".battle-window");
+var $aiBattleArea = $(".ai-area"); //this is the actual ai battle div with sprite and hp and name
 var $playerBattle = $("#player-pokemon");
 var $selectPlayerWindow = $(".player-party");
 var $selectAIWindow = $(".enemy-party");
+var $battleText = $(".battle-text");
 var $selectPlayerPkmn = $(".select-player-pokemon");
 var $selectAIPkmn = $(".select-ai-pokemon");
 var $aiHP = $("#ai-hp");
@@ -16,18 +19,18 @@ var $playerName = $("#player-name");
 var $playerAtk = $("#player-attack");
 var selectedPlayerPkmnID = null;
 var selectedAIPkmnID = null;
-var gameOver = false;
+//var gameOver = false;
 
 var pokemon = {
     name: ['Venusaur', 'Charizard', 'Blastoise', 'Vaporeon', 'Jolteon', 'Flareon'],
     //id: [0,1,2,3,4,5],
     hp: [360, 364, 362, 464, 334, 334],
-    atkVal: [10, 6, 8, 2, 25, 50],
-    atkName: ['Solar Beam', 'Fire Blast', 'Hydro Pump', 'Thunder', 'Fire Blast']
+    atkVal: [10, 300, 8, 2, 325, 50], //char was 6, jolt was 125
+    atkName: ['Solar Beam', 'Fire Blast', 'Hydro Pump', 'Hydro Pump', 'Thunder', 'Fire Blast']
 };
 
 var player = {
-    currentPkmnID: 0,
+    //currentPkmnID: 0,
     currentHP: 0,
     currentAtkPow: 0,
 
@@ -37,17 +40,21 @@ var player = {
 
     setHP: function (hp) {
         this.currentHP = hp;
-        $playerHP.text(`HP: ${this.currentHP}`);
+        if(this.currentHP < 0){
+            $playerHP.text(`HP: 0`);
+        }else{
+            $playerHP.text(`HP: ${this.currentHP}`);
+        }
     },
 
     powerUp: function () {
-        currentAtkPow += 5;
+        this.currentAtkPow += 5;
     }
 
 };
 
 var ai = {
-    currentPkmnID: 0,
+    //currentPkmnID: 0,
     currentHP: 0,
     currentAtkPow: 0,
 
@@ -57,7 +64,12 @@ var ai = {
 
     setHP: function (hp) {
         this.currentHP = hp;
-        $aiHP.text(`HP: ${this.currentHP}`);
+        if(this.currentHP < 0){
+            $aiHP.text(`HP: 0`);
+        }else{
+            $aiHP.text(`HP: ${this.currentHP}`);
+        }
+        
     }
 
 };
@@ -74,10 +86,60 @@ function isPlayerDead() {
     }
 }
 
+function gameOver(){
+    $mainContainer.empty();
+    $mainContainer.text("Game Over!");
+}
+
 function startBattle() {
     selectBGM.pause();
     $selectAIWindow.hide();
     battleBGM.play();
+}
+
+function clearAIBattle(){
+    $aiHP.empty();
+    $aiName.empty();
+    $aiBattle.empty();
+    selectedAIPkmnID = null;
+}
+
+
+
+function initTurn(){
+    
+        ai.setHP(ai.currentHP -= player.currentAtkPow);
+        $battleText.text(`${pokemon.name[selectedPlayerPkmnID]} used ${pokemon.atkName[selectedPlayerPkmnID]} on ${pokemon.name[selectedAIPkmnID]} and dealt ${player.currentAtkPow} damage!`);
+
+        setTimeout(
+            function() 
+            {
+                player.powerUp();
+                 
+                $battleText.text(`You used Rare Candy and ${pokemon.name[selectedPlayerPkmnID]} has powered up!`);
+                console.log("power upped?"+player.currentAtkPow);
+
+                setTimeout(
+                    function() 
+                    {
+                        player.setHP(player.currentHP -= ai.currentAtkPow);
+                        $battleText.text(`${pokemon.name[selectedAIPkmnID]} used ${pokemon.atkName[selectedAIPkmnID]} on ${pokemon.name[selectedPlayerPkmnID]} and dealt ${ai.currentAtkPow} damage!`);
+                }, 2000);
+
+        }, 2000);
+        
+        if(player.currentHP < 1){
+            console.log("Over");
+            gameOver();
+            
+        } else if(ai.currentHP < 1){
+            clearAIBattle();
+            $battleText.empty();
+            showEnemyParty();
+        }
+
+        
+    
 }
 
 $(document).ready(function () {
@@ -120,12 +182,7 @@ $(document).ready(function () {
         startBattle();
     });
 
-    //no matter what the div holding the button and the button it self, if clicked nothing is happening
-    $("#player-attack").children().on("click", function(){ // div holding button
-        console.log("test");
-    });
-
-    $(".attack-btn").on("click", function(){ //actual button
-        console.log("test");
+    $("body").on("click",".attack-btn", function(){ //actual button
+        initTurn();
     });
 });
