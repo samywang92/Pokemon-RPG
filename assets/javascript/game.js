@@ -121,11 +121,11 @@ $(document).ready(function () {
     });
 
     //no matter what the div holding the button and the button it self, if clicked nothing is happening
-    $("#player-attack").children().on("click", function(){
+    $("#player-attack").children().on("click", function(){ // div holding button
         console.log("test");
     });
 
-    $(".attack-btn").on("click", function(){
+    $(".attack-btn").on("click", function(){ //actual button
         console.log("test");
     });
 });
