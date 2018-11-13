@@ -124,6 +124,12 @@ function initTurn(){
                     {
                         player.setHP(player.currentHP -= ai.currentAtkPow);
                         $battleText.text(`${pokemon.name[selectedAIPkmnID]} used ${pokemon.atkName[selectedAIPkmnID]} on ${pokemon.name[selectedPlayerPkmnID]} and dealt ${ai.currentAtkPow} damage!`);
+
+                        setTimeout(
+                            function() 
+                            {
+                                $battleText.text(`Player's turn!`);
+                        }, 2000);
                 }, 2000);
 
         }, 2000);
