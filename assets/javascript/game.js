@@ -37,6 +37,7 @@ var player = {
 
     setHP: function (hp) {
         this.currentHP = hp;
+        $playerHP.text(`HP: ${this.currentHP}`);
     },
 
     powerUp: function () {
@@ -56,6 +57,7 @@ var ai = {
 
     setHP: function (hp) {
         this.currentHP = hp;
+        $aiHP.text(`HP: ${this.currentHP}`);
     }
 
 };
@@ -82,9 +84,7 @@ $(document).ready(function () {
 
     $selectAIWindow.hide();
 
-
     $(".select-player-pokemon").children().on("click", function () {
-        //battleBGM.play();
         var playerPkmnSpr = $("<img>");
         var pkmnSelected = $(this).parent().attr('data-value');
         selectedPlayerPkmnID = $(this).parent().attr('data-id');
@@ -92,14 +92,12 @@ $(document).ready(function () {
         console.log("selected id: " + selectedPlayerPkmnID);
         playerPkmnSpr.attr("src", "./assets/img/" + pkmnSelected + "-back.png");
         $playerBattle.append(playerPkmnSpr);
-        player.currentPkmnID = selectedPlayerPkmnID;
-        player.currentHP = pokemon.hp[selectedPlayerPkmnID];
+        player.setHP(pokemon.hp[selectedPlayerPkmnID]);
         player.currentAtkPow = pokemon.atkVal[selectedPlayerPkmnID];
-        console.log(`Player Current ID: ${player.currentPkmnID } | Current HP: ${player.currentHP} | Current Atk: ${player.currentAtkPow}`);
-        $playerHP.text(`HP: ${player.currentHP}`);
+        console.log(`Player Current ID: ${selectedPlayerPkmnID } | Current HP: ${player.currentHP} | Current Atk: ${player.currentAtkPow}`);
         $playerName.text(pokemon.name[selectedPlayerPkmnID]);
         var atkBtn = $("<button>");
-        atkBtn.attr("class","btn btn-outline-secondary");
+        atkBtn.attr("class","btn btn-outline-secondary attack-btn");
         atkBtn.text(pokemon.atkName[selectedPlayerPkmnID]);
         $playerAtk.append(atkBtn);
         $selectPlayerWindow.hide();
@@ -115,12 +113,19 @@ $(document).ready(function () {
         console.log("selected id: " + selectedAIPkmnID);
         aiPkmnSpr.attr("src", "./assets/img/" + pkmnSelected + "-front.png");
         $aiBattle.append(aiPkmnSpr);
-        ai.currentPkmnID = selectedAIPkmnID;
-        ai.currentHP = pokemon.hp[selectedAIPkmnID];
+        ai.setHP(pokemon.hp[selectedAIPkmnID]);
         ai.currentAtkPow = pokemon.atkVal[selectedAIPkmnID];
-        console.log(`Player Current ID: ${ai.currentPkmnID } | Current HP: ${ai.currentHP} | Current Atk: ${ai.currentAtkPow}`);
-        $aiHP.text(`HP: ${ai.currentHP}`);
+        console.log(`Player Current ID: ${selectedAIPkmnID} | Current HP: ${ai.currentHP} | Current Atk: ${ai.currentAtkPow}`);
         $aiName.text(pokemon.name[selectedAIPkmnID]);
         startBattle();
+    });
+
+    //no matter what the div holding the button and the button it self, if clicked nothing is happening
+    $("#player-attack").children().on("click", function(){
+        console.log("test");
+    });
+
+    $(".attack-btn").on("click", function(){
+        console.log("test");
     });
 });
