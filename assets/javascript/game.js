@@ -90,7 +90,6 @@ var ai = {
 };
 
 
-
 function showEnemyParty() {
     $selectAIWindow.show();
 }
@@ -156,7 +155,6 @@ function clearAIBattle() {
 }
 
 
-
 function checkHPStatus() {
     if (player.currentHP < 1) {
         console.log("Over");
@@ -187,7 +185,8 @@ function initTurn() {
     ai.setHP(ai.currentHP -= player.currentAtkPow);
     atkSFX.play();
     $battleText.text(`${pokemon.name[selectedPlayerPkmnID]} used ${pokemon.atkName[selectedPlayerPkmnID]} on ${pokemon.name[selectedAIPkmnID]} and dealt ${player.currentAtkPow} damage!`);
-
+    animationClick(".player-img",'wobble');
+    animationClick(".ai-img",'flash');
     setTimeout(
         function () {
             player.powerUp();
@@ -198,7 +197,8 @@ function initTurn() {
                         player.setHP(player.currentHP -= ai.currentAtkPow);
                         atkSFX.play();
                         $battleText.text(`${pokemon.name[selectedAIPkmnID]} used ${pokemon.atkName[selectedAIPkmnID]} on ${pokemon.name[selectedPlayerPkmnID]} and dealt ${ai.currentAtkPow} damage!`);
-
+                        animationClick(".ai-img",'wobble');
+                        animationClick(".player-img",'flash');
                         setTimeout(
                             function () {
                                 $battleText.text(`Player's turn!`);
@@ -223,6 +223,17 @@ function initTurn() {
 
 }
 
+function animationClick(element, animation){
+    element = $(element);
+    element.removeClass('fadeInLeft fadeInRight').addClass('animated ' + animation);    
+    console.log("entered the den");    
+    //wait for animation to finish before removing classes
+    window.setTimeout( function(){
+        element.removeClass('animated ' + animation);
+    }, 2000);         
+    
+}
+
 $(document).ready(function () {
 
     $selectAIWindow.hide();
@@ -236,6 +247,7 @@ $(document).ready(function () {
         console.log("selected: " + pkmnSelected);
         console.log("selected id: " + selectedPlayerPkmnID);
         playerPkmnSpr.attr("src", "./assets/img/" + pkmnSelected + "-back.png");
+        playerPkmnSpr.attr("class", "player-img animated fadeInLeft");
         $playerBattle.append(playerPkmnSpr);
         player.setHP(pokemon.hp[selectedPlayerPkmnID]);
         player.currentAtkPow = pokemon.atkVal[selectedPlayerPkmnID];
@@ -260,6 +272,7 @@ $(document).ready(function () {
         console.log("selected: " + pkmnSelected);
         console.log("selected id: " + selectedAIPkmnID);
         aiPkmnSpr.attr("src", "./assets/img/" + pkmnSelected + "-front.png");
+        aiPkmnSpr.attr("class", "ai-img animated fadeInRight");
         $aiBattle.append(aiPkmnSpr);
         ai.setHP(pokemon.hp[selectedAIPkmnID]);
         ai.currentAtkPow = pokemon.atkVal[selectedAIPkmnID];
