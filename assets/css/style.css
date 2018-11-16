@@ -1,6 +1,10 @@
 .hidden { display: none; }
 
-.main-container {
+.battle-window {
     background-image: url("../img/bg.jpg");
     background-repeat: no-repeat;
+}
+
+.starting-window {
+    background-color: white;
 }

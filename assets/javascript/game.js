@@ -35,8 +35,8 @@ var aiDefeatedCount = 0;
 var pokemon = {
     name: ['Venusaur', 'Charizard', 'Blastoise', 'Vaporeon', 'Jolteon', 'Flareon'],
     //id: [0,1,2,3,4,5],
-    hp: [360, 365, 362, 464, 334, 334], //char wass 364
-    atkVal: [10, 1000, 8, 2, 100, 50], //char was 6, jolt was 125
+    hp: [360, 364, 362, 464, 334, 334], //char wass 364
+    atkVal: [10, 100, 8, 2, 100, 50], //char was 6, jolt was 125
     atkName: ['Solar Beam', 'Fire Blast', 'Hydro Pump', 'Hydro Pump', 'Thunder', 'Fire Blast'],
     type1: ["grass", "fire", "water", "water", "electric", "fire"]
 };
@@ -53,9 +53,11 @@ var player = {
     setHP: function (hp) {
         this.currentHP = hp;
         if (this.currentHP < 0) {
-            $playerHP.text(`HP: 0`);
+            $playerHP.attr("style", "width:0%");
+            
         } else {
-            $playerHP.text(`HP: ${this.currentHP}`);
+            console.log("percent"+convertHPP(hp,pokemon.hp[selectedPlayerPkmnID]));
+            $playerHP.attr("style", "width:" + convertHPP(hp,pokemon.hp[selectedPlayerPkmnID]) + "%");
         }
     },
 
@@ -201,6 +203,7 @@ function initTurn() {
                                 console.log("% hp"+convertHPP(player.currentHP,pokemon.hp[selectedPlayerPkmnID]));
                                 $('.attack-btn').prop('disabled', false);
                                 if(convertHPP(player.currentHP,pokemon.hp[selectedPlayerPkmnID]) < 25){ // checks players hp
+                                    $playerHP.removeClass("bg-success").addClass( "bg-danger" ); //change hp bar colour
                                     lowHPSFX.play();
                                     lowHPSFX.loop = true;
                                     lowHPSFX.volume = 0.4;
