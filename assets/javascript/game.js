@@ -36,7 +36,7 @@ var pokemon = {
     name: ['Venusaur', 'Charizard', 'Blastoise', 'Vaporeon', 'Jolteon', 'Flareon'],
     //id: [0,1,2,3,4,5],
     hp: [360, 364, 362, 464, 334, 334], //char wass 364
-    atkVal: [10, 100, 8, 2, 100, 50], //char was 6, jolt was 125
+    atkVal: [10, 6, 8, 2, 125, 50], //char was 6, jolt was 125
     atkName: ['Solar Beam', 'Fire Blast', 'Hydro Pump', 'Hydro Pump', 'Thunder', 'Fire Blast'],
     type1: ["grass", "fire", "water", "water", "electric", "fire"]
 };
@@ -110,6 +110,12 @@ function gameOver() {
     lowHPSFX.pause();
     battleBGM.currentTime = 0;
     gameOverBGM.play();
+    var newDiv = $("<div>");
+    $mainContainer.append(newDiv);
+    var reloadBtn = $("<button>");
+    reloadBtn.attr("class", "btn btn-outline-secondary reload-btn");
+    reloadBtn.text("Restart");
+    newDiv.append(reloadBtn);
 }
 
 function playerWins() {
@@ -157,6 +163,7 @@ function checkHPStatus() {
         gameOver();
 
     } else if (ai.currentHP < 1) {
+        faintSFX.play();
         $battleText.empty();
         showEnemyParty();
         removeAIPokemon(selectedAIPkmnID);
@@ -194,10 +201,7 @@ function initTurn() {
 
                         setTimeout(
                             function () {
-                                //reneanble attack button
                                 $battleText.text(`Player's turn!`);
-                                console.error("HOW THE FUCK DID YOU ENTER HERE");
-                                //console.log(convertHPP);
                                 console.log("max hp"+pokemon.hp[selectedPlayerPkmnID]);
                                 console.log("% hp"+convertHPP(player.currentHP,pokemon.hp[selectedPlayerPkmnID]));
                                 $('.attack-btn').prop('disabled', false);
