@@ -26,7 +26,8 @@ var pokemon = {
     //id: [0,1,2,3,4,5],
     hp: [360, 364, 362, 464, 334, 334],
     atkVal: [10, 300, 8, 2, 325, 50], //char was 6, jolt was 125
-    atkName: ['Solar Beam', 'Fire Blast', 'Hydro Pump', 'Hydro Pump', 'Thunder', 'Fire Blast']
+    atkName: ['Solar Beam', 'Fire Blast', 'Hydro Pump', 'Hydro Pump', 'Thunder', 'Fire Blast'],
+    type1: ["grass", "fire", "water", "water", "electric", "fire"]
 };
 
 var player = {
@@ -40,15 +41,17 @@ var player = {
 
     setHP: function (hp) {
         this.currentHP = hp;
-        if(this.currentHP < 0){
+        if (this.currentHP < 0) {
             $playerHP.text(`HP: 0`);
-        }else{
+        } else {
             $playerHP.text(`HP: ${this.currentHP}`);
         }
     },
 
     powerUp: function () {
         this.currentAtkPow += 5;
+        $battleText.text(`You used Rare Candy and ${pokemon.name[selectedPlayerPkmnID]} has powered up!`);
+        console.log("power upped?" + player.currentAtkPow);
     }
 
 };
@@ -64,12 +67,12 @@ var ai = {
 
     setHP: function (hp) {
         this.currentHP = hp;
-        if(this.currentHP < 0){
+        if (this.currentHP < 0) {
             $aiHP.text(`HP: 0`);
-        }else{
+        } else {
             $aiHP.text(`HP: ${this.currentHP}`);
         }
-        
+
     }
 
 };
@@ -79,14 +82,14 @@ function showEnemyParty() {
 }
 
 function isPlayerDead() {
-    if(player.currentHP > 0){
+    if (player.currentHP > 0) {
         return true;
-    }else {
+    } else {
         return false;
     }
 }
 
-function gameOver(){
+function gameOver() {
     $mainContainer.empty();
     $mainContainer.text("Game Over!");
 }
@@ -97,60 +100,70 @@ function startBattle() {
     battleBGM.play();
 }
 
-function clearAIBattle(){
+function removeAIPokemon(pkmnID){
+    $("")
+}
+
+function clearAIBattle() {
     $aiHP.empty();
     $aiName.empty();
     $aiBattle.empty();
     selectedAIPkmnID = null;
 }
 
+function checkHPStatus() {
+    if (player.currentHP < 1) {
+        console.log("Over");
+        gameOver();
+
+    } else if (ai.currentHP < 1) {
+        clearAIBattle();
+        $battleText.empty();
+        showEnemyParty();
+        
+    }
+}
 
 
-function initTurn(){
-    
-        ai.setHP(ai.currentHP -= player.currentAtkPow);
-        $battleText.text(`${pokemon.name[selectedPlayerPkmnID]} used ${pokemon.atkName[selectedPlayerPkmnID]} on ${pokemon.name[selectedAIPkmnID]} and dealt ${player.currentAtkPow} damage!`);
+function initTurn() {
 
-        setTimeout(
-            function() 
-            {
-                player.powerUp();
-                 
-                $battleText.text(`You used Rare Candy and ${pokemon.name[selectedPlayerPkmnID]} has powered up!`);
-                console.log("power upped?"+player.currentAtkPow);
+    //disables the button to attack enemy
+    $('.attack-btn').prop('disabled',true);
 
+    ai.setHP(ai.currentHP -= player.currentAtkPow);
+    $battleText.text(`${pokemon.name[selectedPlayerPkmnID]} used ${pokemon.atkName[selectedPlayerPkmnID]} on ${pokemon.name[selectedAIPkmnID]} and dealt ${player.currentAtkPow} damage!`);
+
+    setTimeout(
+        function () {
+            player.powerUp();
+
+            if (ai.currentHP > 0) { // check to do ai turn
                 setTimeout(
-                    function() 
-                    {
+                    function () {
                         player.setHP(player.currentHP -= ai.currentAtkPow);
                         $battleText.text(`${pokemon.name[selectedAIPkmnID]} used ${pokemon.atkName[selectedAIPkmnID]} on ${pokemon.name[selectedPlayerPkmnID]} and dealt ${ai.currentAtkPow} damage!`);
 
                         setTimeout(
-                            function() 
-                            {
+                            function () {
+                                //reneanble attack button
                                 $battleText.text(`Player's turn!`);
-                        }, 2000);
-                }, 2000);
+                                $('.attack-btn').prop('disabled',false);
+                            }, 2000);
 
+                        checkHPStatus();
+                    }, 2000);
+            } else {
+                checkHPStatus();
+            }
         }, 2000);
-        
-        if(player.currentHP < 1){
-            console.log("Over");
-            gameOver();
-            
-        } else if(ai.currentHP < 1){
-            clearAIBattle();
-            $battleText.empty();
-            showEnemyParty();
-        }
 
-        
-    
 }
 
 $(document).ready(function () {
 
     $selectAIWindow.hide();
+    selectBGM.play();
+
 
     $(".select-player-pokemon").children().on("click", function () {
         var playerPkmnSpr = $("<img>");
@@ -162,13 +175,15 @@ $(document).ready(function () {
         $playerBattle.append(playerPkmnSpr);
         player.setHP(pokemon.hp[selectedPlayerPkmnID]);
         player.currentAtkPow = pokemon.atkVal[selectedPlayerPkmnID];
-        console.log(`Player Current ID: ${selectedPlayerPkmnID } | Current HP: ${player.currentHP} | Current Atk: ${player.currentAtkPow}`);
+        console.log(`Player Current ID: ${selectedPlayerPkmnID} | Current HP: ${player.currentHP} | Current Atk: ${player.currentAtkPow}`);
         $playerName.text(pokemon.name[selectedPlayerPkmnID]);
         var atkBtn = $("<button>");
-        atkBtn.attr("class","btn btn-outline-secondary attack-btn");
+        atkBtn.attr("class", "btn btn-outline-secondary attack-btn");
         atkBtn.text(pokemon.atkName[selectedPlayerPkmnID]);
         $playerAtk.append(atkBtn);
         $selectPlayerWindow.hide();
+        //disables the button to attack enemy
+        $('.attack-btn').prop('disabled',true);
         //$battleWindow.hide();
         showEnemyParty();
     });
@@ -185,10 +200,12 @@ $(document).ready(function () {
         ai.currentAtkPow = pokemon.atkVal[selectedAIPkmnID];
         console.log(`Player Current ID: ${selectedAIPkmnID} | Current HP: ${ai.currentHP} | Current Atk: ${ai.currentAtkPow}`);
         $aiName.text(pokemon.name[selectedAIPkmnID]);
+        //re-enable attack button
+        $('.attack-btn').prop('disabled',false);
         startBattle();
     });
 
-    $("body").on("click",".attack-btn", function(){ //actual button
+    $("body").on("click", ".attack-btn", function () { //actual button
         initTurn();
     });
 });
