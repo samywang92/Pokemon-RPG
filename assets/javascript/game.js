@@ -4,12 +4,20 @@ var atkSFX = document.createElement("audio");
 var gameOverBGM = document.createElement("audio");
 var faintSFX = document.createElement("audio");
 var lowHPSFX = document.createElement("audio");
+var throwSFX = document.createElement("audio");
+var landSFX = document.createElement("audio");
+var powerupSFX = document.createElement("audio");
+var selectFX = document.createElement("audio");
 var victoryBGM = document.createElement("audio");
 battleBGM.setAttribute("src", "./assets/trainer-battle.mp3");
 selectBGM.setAttribute("src", "./assets/select.mp3");
 atkSFX.setAttribute("src", "./assets/attack.mp3");
 lowHPSFX.setAttribute("src", "./assets/low-hp.mp3");
+throwSFX.setAttribute("src", "./assets/throw.mp3");
+landSFX.setAttribute("src", "./assets/land.mp3");
 faintSFX.setAttribute("src", "./assets/faint.mp3");
+powerupSFX.setAttribute("src", "./assets/rarecandy.mp3");
+selectFX.setAttribute("src", "./assets/beep.mp3");
 gameOverBGM.setAttribute("src", "./assets/failed.mp3");
 victoryBGM.setAttribute("src", "./assets/victory.mp3");
 var $mainContainer = $(".main-container");
@@ -36,7 +44,7 @@ var pokemon = {
     name: ['Venusaur', 'Charizard', 'Blastoise', 'Vaporeon', 'Jolteon', 'Flareon'],
     //id: [0,1,2,3,4,5],
     hp: [360, 364, 362, 464, 334, 334], //char wass 364
-    atkVal: [10, 6, 8, 2, 100, 25], //char was 6, jolt was 125
+    atkVal: [10, 1000, 8, 2, 100, 25], //char was 6, jolt was 100
     atkName: ['Solar Beam', 'Fire Blast', 'Hydro Pump', 'Hydro Pump', 'Thunder', 'Fire Blast'],
     type1: ["grass", "fire", "water", "water", "electric", "fire"]
 };
@@ -54,9 +62,9 @@ var player = {
         this.currentHP = hp;
         if (this.currentHP < 0) {
             $playerHP.attr("style", "width:0%");
-            
+
         } else {
-            $playerHP.attr("style", "width:" + convertHPP(hp,pokemon.hp[selectedPlayerPkmnID]) + "%");
+            $playerHP.attr("style", "width:" + convertHPP(hp, pokemon.hp[selectedPlayerPkmnID]) + "%");
         }
     },
 
@@ -82,7 +90,7 @@ var ai = {
         if (this.currentHP < 0) {
             $aiHP.attr("style", "width:0%");
         } else {
-            $aiHP.attr("style", "width:" + convertHPP(hp,pokemon.hp[selectedAIPkmnID]) + "%");
+            $aiHP.attr("style", "width:" + convertHPP(hp, pokemon.hp[selectedAIPkmnID]) + "%");
         }
 
     }
@@ -172,8 +180,8 @@ function checkHPStatus() {
     }
 }
 
-function convertHPP (currentHP, maxHP){
-    return (currentHP/maxHP)*100;
+function convertHPP(currentHP, maxHP) {
+    return (currentHP / maxHP) * 100;
 }
 
 
@@ -185,28 +193,31 @@ function initTurn() {
     ai.setHP(ai.currentHP -= player.currentAtkPow);
     atkSFX.play();
     $battleText.text(`${pokemon.name[selectedPlayerPkmnID]} used ${pokemon.atkName[selectedPlayerPkmnID]} on ${pokemon.name[selectedAIPkmnID]} and dealt ${player.currentAtkPow} damage!`);
-    animationClick(".player-img",'wobble');
-    animationClick(".ai-img",'flash');
+    animationClick(".player-img", 'wobble');
+    animationClick(".ai-img", 'flash');
     setTimeout(
         function () {
+            powerupSFX.play();
             player.powerUp();
 
             if (ai.currentHP > 0) { // check to do ai turn
                 setTimeout(
                     function () {
+                        //selectFX.play();
                         player.setHP(player.currentHP -= ai.currentAtkPow);
                         atkSFX.play();
                         $battleText.text(`${pokemon.name[selectedAIPkmnID]} used ${pokemon.atkName[selectedAIPkmnID]} on ${pokemon.name[selectedPlayerPkmnID]} and dealt ${ai.currentAtkPow} damage!`);
-                        animationClick(".ai-img",'wobble');
-                        animationClick(".player-img",'flash');
+                        animationClick(".ai-img", 'wobble');
+                        animationClick(".player-img", 'flash');
                         setTimeout(
                             function () {
+                                selectFX.play();
                                 $battleText.text(`Player's turn!`);
-                                console.log("max hp"+pokemon.hp[selectedPlayerPkmnID]);
-                                console.log("% hp"+convertHPP(player.currentHP,pokemon.hp[selectedPlayerPkmnID]));
+                                console.log("max hp" + pokemon.hp[selectedPlayerPkmnID]);
+                                console.log("% hp" + convertHPP(player.currentHP, pokemon.hp[selectedPlayerPkmnID]));
                                 $('.attack-btn').prop('disabled', false);
-                                if(convertHPP(player.currentHP,pokemon.hp[selectedPlayerPkmnID]) < 40){ // checks players hp
-                                    $playerHP.removeClass("bg-success").addClass( "bg-danger" ); //change hp bar colour
+                                if (convertHPP(player.currentHP, pokemon.hp[selectedPlayerPkmnID]) < 40) { // checks players hp
+                                    $playerHP.removeClass("bg-success").addClass("bg-danger"); //change hp bar colour
                                     lowHPSFX.play();
                                     lowHPSFX.loop = true;
                                     lowHPSFX.volume = 0.4;
@@ -214,7 +225,7 @@ function initTurn() {
                                 checkHPStatus();
 
                             }, 2000);
- 
+
                     }, 2000);
             } else {
                 checkHPStatus();
@@ -223,15 +234,15 @@ function initTurn() {
 
 }
 
-function animationClick(element, animation){
+function animationClick(element, animation) {
     element = $(element);
-    element.removeClass('fadeInLeft fadeInRight').addClass('animated ' + animation);    
-    console.log("entered the den");    
+    element.removeClass('fadeInLeft fadeInRight').addClass('animated ' + animation);
+    console.log("entered the den");
     //wait for animation to finish before removing classes
-    window.setTimeout( function(){
+    window.setTimeout(function () {
         element.removeClass('animated ' + animation);
-    }, 2000);         
-    
+    }, 2000);
+
 }
 
 $(document).ready(function () {
@@ -246,9 +257,19 @@ $(document).ready(function () {
         selectedPlayerPkmnID = $(this).parent().attr('id');
         console.log("selected: " + pkmnSelected);
         console.log("selected id: " + selectedPlayerPkmnID);
-        playerPkmnSpr.attr("src", "./assets/img/" + pkmnSelected + "-back.png");
+        playerPkmnSpr.attr("src", "./assets/img/player.gif");
         playerPkmnSpr.attr("class", "player-img animated fadeInLeft");
         $playerBattle.append(playerPkmnSpr);
+        setTimeout(
+            function () {
+                throwSFX.play();
+            }, 1750);
+        setTimeout(
+            function () {
+                animationClick(".player-img", 'zoomIn');
+                $(".player-img").attr("src", "./assets/img/" + pkmnSelected + "-back.png");
+                landSFX.play();
+            }, 3000);
         player.setHP(pokemon.hp[selectedPlayerPkmnID]);
         player.currentAtkPow = pokemon.atkVal[selectedPlayerPkmnID];
         console.log(`Player Current ID: ${selectedPlayerPkmnID} | Current HP: ${player.currentHP} | Current Atk: ${player.currentAtkPow}`);
@@ -271,9 +292,19 @@ $(document).ready(function () {
         selectedAIPkmnID = $(this).parent().attr('id');
         console.log("selected: " + pkmnSelected);
         console.log("selected id: " + selectedAIPkmnID);
-        aiPkmnSpr.attr("src", "./assets/img/" + pkmnSelected + "-front.png");
+        aiPkmnSpr.attr("src", "./assets/img/blue.png");
         aiPkmnSpr.attr("class", "ai-img animated fadeInRight");
         $aiBattle.append(aiPkmnSpr);
+        setTimeout(
+            function () {
+                throwSFX.play();
+            }, 3000);
+        setTimeout(
+            function () {
+                animationClick(".ai-img", 'zoomIn');
+                $(".ai-img").attr("src", "./assets/img/" + pkmnSelected + "-front.png");
+                landSFX.play();
+            }, 3500);
         ai.setHP(pokemon.hp[selectedAIPkmnID]);
         ai.currentAtkPow = pokemon.atkVal[selectedAIPkmnID];
         console.log(`Player Current ID: ${selectedAIPkmnID} | Current HP: ${ai.currentHP} | Current Atk: ${ai.currentAtkPow}`);
@@ -283,11 +314,11 @@ $(document).ready(function () {
         startBattle();
     });
 
-    $("body").on("click", ".attack-btn", function () { 
+    $("body").on("click", ".attack-btn", function () {
         initTurn();
     });
 
-    $("body").on("click", ".reload-btn", function () { 
+    $("body").on("click", ".reload-btn", function () {
         location.reload();
     });
 });
