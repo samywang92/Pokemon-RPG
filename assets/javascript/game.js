@@ -1,7 +1,13 @@
 var battleBGM = document.createElement("audio");
 var selectBGM = document.createElement("audio");
+var atkSFX = document.createElement("audio");
+var gameOverBGM = document.createElement("audio");
+var victoryBGM = document.createElement("audio");
 battleBGM.setAttribute("src", "./assets/trainer-battle.mp3");
 selectBGM.setAttribute("src", "./assets/select.mp3");
+atkSFX.setAttribute("src", "./assets/attack.mp3");
+gameOverBGM.setAttribute("src", "./assets/failed.mp3");
+victoryBGM.setAttribute("src", "./assets/victory.mp3");
 var $mainContainer = $(".main-container");
 var $aiBattle = $("#ai-pokemon"); //this is the ai pokemon sprite
 var $battleWindow = $(".battle-window");
@@ -19,13 +25,14 @@ var $playerName = $("#player-name");
 var $playerAtk = $("#player-attack");
 var selectedPlayerPkmnID = null;
 var selectedAIPkmnID = null;
+var aiDefeatedCount = 0;
 //var gameOver = false;
 
 var pokemon = {
     name: ['Venusaur', 'Charizard', 'Blastoise', 'Vaporeon', 'Jolteon', 'Flareon'],
     //id: [0,1,2,3,4,5],
-    hp: [360, 364, 362, 464, 334, 334],
-    atkVal: [10, 300, 8, 2, 325, 50], //char was 6, jolt was 125
+    hp: [360, 10000, 362, 464, 334, 334], //char wass 364
+    atkVal: [10, 500, 8, 2, 325, 50], //char was 6, jolt was 125
     atkName: ['Solar Beam', 'Fire Blast', 'Hydro Pump', 'Hydro Pump', 'Thunder', 'Fire Blast'],
     type1: ["grass", "fire", "water", "water", "electric", "fire"]
 };
@@ -77,6 +84,8 @@ var ai = {
 
 };
 
+
+
 function showEnemyParty() {
     $selectAIWindow.show();
 }
@@ -92,16 +101,37 @@ function isPlayerDead() {
 function gameOver() {
     $mainContainer.empty();
     $mainContainer.text("Game Over!");
+    battleBGM.pause();
+    battleBGM.currentTime = 0;
+    gameOverBGM.play();
+}
+
+function playerWins() {
+    $mainContainer.empty();
+    $mainContainer.text("Player Wins!");
+    battleBGM.pause();
+    battleBGM.currentTime = 0;
+    victoryBGM.play();
+    var newDiv = $("<div>");
+    $mainContainer.append(newDiv);
+    var reloadBtn = $("<button>");
+    reloadBtn.attr("class", "btn btn-outline-secondary reload-btn");
+    reloadBtn.text("Restart");
+    newDiv.append(reloadBtn);
 }
 
 function startBattle() {
     selectBGM.pause();
     $selectAIWindow.hide();
     battleBGM.play();
+    battleBGM.volume = 0.1;
 }
 
-function removeAIPokemon(pkmnID){
-    $("")
+function removeAIPokemon(pkmnID) {
+    console.log("variable passed" + pkmnID);
+    console.log("global" + selectedAIPkmnID)
+    $(`#${pkmnID}`).empty();
+    aiDefeatedCount++;
 }
 
 function clearAIBattle() {
@@ -111,16 +141,22 @@ function clearAIBattle() {
     selectedAIPkmnID = null;
 }
 
+
+
 function checkHPStatus() {
     if (player.currentHP < 1) {
         console.log("Over");
         gameOver();
 
     } else if (ai.currentHP < 1) {
-        clearAIBattle();
         $battleText.empty();
         showEnemyParty();
-        
+        console.log
+        removeAIPokemon(selectedAIPkmnID);
+        clearAIBattle();
+        if (aiDefeatedCount === 3) {
+            playerWins();
+        }
     }
 }
 
@@ -128,9 +164,10 @@ function checkHPStatus() {
 function initTurn() {
 
     //disables the button to attack enemy
-    $('.attack-btn').prop('disabled',true);
+    $('.attack-btn').prop('disabled', true);
 
     ai.setHP(ai.currentHP -= player.currentAtkPow);
+    atkSFX.play();
     $battleText.text(`${pokemon.name[selectedPlayerPkmnID]} used ${pokemon.atkName[selectedPlayerPkmnID]} on ${pokemon.name[selectedAIPkmnID]} and dealt ${player.currentAtkPow} damage!`);
 
     setTimeout(
@@ -141,13 +178,14 @@ function initTurn() {
                 setTimeout(
                     function () {
                         player.setHP(player.currentHP -= ai.currentAtkPow);
+                        atkSFX.play();
                         $battleText.text(`${pokemon.name[selectedAIPkmnID]} used ${pokemon.atkName[selectedAIPkmnID]} on ${pokemon.name[selectedPlayerPkmnID]} and dealt ${ai.currentAtkPow} damage!`);
 
                         setTimeout(
                             function () {
                                 //reneanble attack button
                                 $battleText.text(`Player's turn!`);
-                                $('.attack-btn').prop('disabled',false);
+                                $('.attack-btn').prop('disabled', false);
                             }, 2000);
 
                         checkHPStatus();
@@ -162,13 +200,13 @@ function initTurn() {
 $(document).ready(function () {
 
     $selectAIWindow.hide();
-    selectBGM.play();
+    //selectBGM.play();
 
 
     $(".select-player-pokemon").children().on("click", function () {
         var playerPkmnSpr = $("<img>");
         var pkmnSelected = $(this).parent().attr('data-value');
-        selectedPlayerPkmnID = $(this).parent().attr('data-id');
+        selectedPlayerPkmnID = $(this).parent().attr('id');
         console.log("selected: " + pkmnSelected);
         console.log("selected id: " + selectedPlayerPkmnID);
         playerPkmnSpr.attr("src", "./assets/img/" + pkmnSelected + "-back.png");
@@ -183,7 +221,7 @@ $(document).ready(function () {
         $playerAtk.append(atkBtn);
         $selectPlayerWindow.hide();
         //disables the button to attack enemy
-        $('.attack-btn').prop('disabled',true);
+        $('.attack-btn').prop('disabled', true);
         //$battleWindow.hide();
         showEnemyParty();
     });
@@ -191,7 +229,8 @@ $(document).ready(function () {
     $(".select-ai-pokemon").children().on("click", function () {
         var aiPkmnSpr = $("<img>");
         var pkmnSelected = $(this).parent().attr('data-value');
-        selectedAIPkmnID = $(this).parent().attr('data-id');
+        //selectedAIPkmnID = $(this).parent().attr('data-id');
+        selectedAIPkmnID = $(this).parent().attr('id');
         console.log("selected: " + pkmnSelected);
         console.log("selected id: " + selectedAIPkmnID);
         aiPkmnSpr.attr("src", "./assets/img/" + pkmnSelected + "-front.png");
@@ -201,11 +240,15 @@ $(document).ready(function () {
         console.log(`Player Current ID: ${selectedAIPkmnID} | Current HP: ${ai.currentHP} | Current Atk: ${ai.currentAtkPow}`);
         $aiName.text(pokemon.name[selectedAIPkmnID]);
         //re-enable attack button
-        $('.attack-btn').prop('disabled',false);
+        $('.attack-btn').prop('disabled', false);
         startBattle();
     });
 
-    $("body").on("click", ".attack-btn", function () { //actual button
+    $("body").on("click", ".attack-btn", function () { 
         initTurn();
+    });
+
+    $("body").on("click", ".reload-btn", function () { 
+        location.reload();
     });
 });

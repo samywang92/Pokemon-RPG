@@ -1,1 +1,6 @@
 .hidden { display: none; }
+
+.main-container {
+    background-image: url("../img/bg.jpg");
+    background-repeat: no-repeat;
+}
