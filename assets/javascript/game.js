@@ -36,7 +36,7 @@ var pokemon = {
     name: ['Venusaur', 'Charizard', 'Blastoise', 'Vaporeon', 'Jolteon', 'Flareon'],
     //id: [0,1,2,3,4,5],
     hp: [360, 365, 362, 464, 334, 334], //char wass 364
-    atkVal: [10, 100, 8, 2, 100, 50], //char was 6, jolt was 125
+    atkVal: [10, 1000, 8, 2, 100, 50], //char was 6, jolt was 125
     atkName: ['Solar Beam', 'Fire Blast', 'Hydro Pump', 'Hydro Pump', 'Thunder', 'Fire Blast'],
     type1: ["grass", "fire", "water", "water", "electric", "fire"]
 };
@@ -103,10 +103,10 @@ function isPlayerDead() {
 }
 
 function gameOver() {
-    lowHPSFX.pause();
     $mainContainer.empty();
     $mainContainer.text("Game Over!");
     battleBGM.pause();
+    lowHPSFX.pause();
     battleBGM.currentTime = 0;
     gameOverBGM.play();
 }
@@ -158,7 +158,6 @@ function checkHPStatus() {
     } else if (ai.currentHP < 1) {
         $battleText.empty();
         showEnemyParty();
-        console.log
         removeAIPokemon(selectedAIPkmnID);
         clearAIBattle();
         if (aiDefeatedCount === 3) {
@@ -196,19 +195,20 @@ function initTurn() {
                             function () {
                                 //reneanble attack button
                                 $battleText.text(`Player's turn!`);
+                                console.error("HOW THE FUCK DID YOU ENTER HERE");
                                 //console.log(convertHPP);
                                 console.log("max hp"+pokemon.hp[selectedPlayerPkmnID]);
                                 console.log("% hp"+convertHPP(player.currentHP,pokemon.hp[selectedPlayerPkmnID]));
                                 $('.attack-btn').prop('disabled', false);
                                 if(convertHPP(player.currentHP,pokemon.hp[selectedPlayerPkmnID]) < 25){ // checks players hp
-                                    console.error("below 25%!!");
                                     lowHPSFX.play();
                                     lowHPSFX.loop = true;
-                                    lowHPSFX.volume = 0.1;
+                                    lowHPSFX.volume = 0.4;
                                 }
-                            }, 2000);
+                                checkHPStatus();
 
-                        checkHPStatus();
+                            }, 2000);
+ 
                     }, 2000);
             } else {
                 checkHPStatus();
