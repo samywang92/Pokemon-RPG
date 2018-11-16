@@ -2,10 +2,14 @@ var battleBGM = document.createElement("audio");
 var selectBGM = document.createElement("audio");
 var atkSFX = document.createElement("audio");
 var gameOverBGM = document.createElement("audio");
+var faintSFX = document.createElement("audio");
+var lowHPSFX = document.createElement("audio");
 var victoryBGM = document.createElement("audio");
 battleBGM.setAttribute("src", "./assets/trainer-battle.mp3");
 selectBGM.setAttribute("src", "./assets/select.mp3");
 atkSFX.setAttribute("src", "./assets/attack.mp3");
+lowHPSFX.setAttribute("src", "./assets/low-hp.mp3");
+faintSFX.setAttribute("src", "./assets/faint.mp3");
 gameOverBGM.setAttribute("src", "./assets/failed.mp3");
 victoryBGM.setAttribute("src", "./assets/victory.mp3");
 var $mainContainer = $(".main-container");
@@ -31,8 +35,8 @@ var aiDefeatedCount = 0;
 var pokemon = {
     name: ['Venusaur', 'Charizard', 'Blastoise', 'Vaporeon', 'Jolteon', 'Flareon'],
     //id: [0,1,2,3,4,5],
-    hp: [360, 10000, 362, 464, 334, 334], //char wass 364
-    atkVal: [10, 500, 8, 2, 325, 50], //char was 6, jolt was 125
+    hp: [360, 365, 362, 464, 334, 334], //char wass 364
+    atkVal: [10, 100, 8, 2, 100, 50], //char was 6, jolt was 125
     atkName: ['Solar Beam', 'Fire Blast', 'Hydro Pump', 'Hydro Pump', 'Thunder', 'Fire Blast'],
     type1: ["grass", "fire", "water", "water", "electric", "fire"]
 };
@@ -99,6 +103,7 @@ function isPlayerDead() {
 }
 
 function gameOver() {
+    lowHPSFX.pause();
     $mainContainer.empty();
     $mainContainer.text("Game Over!");
     battleBGM.pause();
@@ -107,6 +112,7 @@ function gameOver() {
 }
 
 function playerWins() {
+    lowHPSFX.pause();
     $mainContainer.empty();
     $mainContainer.text("Player Wins!");
     battleBGM.pause();
@@ -124,6 +130,7 @@ function startBattle() {
     selectBGM.pause();
     $selectAIWindow.hide();
     battleBGM.play();
+    battleBGM.loop = true;
     battleBGM.volume = 0.1;
 }
 
@@ -160,6 +167,10 @@ function checkHPStatus() {
     }
 }
 
+function convertHPP (currentHP, maxHP){
+    return (currentHP/maxHP)*100;
+}
+
 
 function initTurn() {
 
@@ -185,7 +196,16 @@ function initTurn() {
                             function () {
                                 //reneanble attack button
                                 $battleText.text(`Player's turn!`);
+                                //console.log(convertHPP);
+                                console.log("max hp"+pokemon.hp[selectedPlayerPkmnID]);
+                                console.log("% hp"+convertHPP(player.currentHP,pokemon.hp[selectedPlayerPkmnID]));
                                 $('.attack-btn').prop('disabled', false);
+                                if(convertHPP(player.currentHP,pokemon.hp[selectedPlayerPkmnID]) < 25){ // checks players hp
+                                    console.error("below 25%!!");
+                                    lowHPSFX.play();
+                                    lowHPSFX.loop = true;
+                                    lowHPSFX.volume = 0.1;
+                                }
                             }, 2000);
 
                         checkHPStatus();
