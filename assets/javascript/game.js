@@ -56,7 +56,6 @@ var player = {
             $playerHP.attr("style", "width:0%");
             
         } else {
-            console.log("percent"+convertHPP(hp,pokemon.hp[selectedPlayerPkmnID]));
             $playerHP.attr("style", "width:" + convertHPP(hp,pokemon.hp[selectedPlayerPkmnID]) + "%");
         }
     },
@@ -81,9 +80,9 @@ var ai = {
     setHP: function (hp) {
         this.currentHP = hp;
         if (this.currentHP < 0) {
-            $aiHP.text(`HP: 0`);
+            $aiHP.attr("style", "width:0%");
         } else {
-            $aiHP.text(`HP: ${this.currentHP}`);
+            $aiHP.attr("style", "width:" + convertHPP(hp,pokemon.hp[selectedAIPkmnID]) + "%");
         }
 
     }
