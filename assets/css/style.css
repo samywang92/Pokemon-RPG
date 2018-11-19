@@ -1,10 +1,16 @@
 .hidden { display: none; }
 
 .battle-window {
-    background-image: url("../img/bg.jpg");
+    background-image: url("../img/bg-test.jpg");
     background-repeat: no-repeat;
+    background-size: 100%;
 }
 
 .starting-window {
     background-color: white;
+}
+
+body{
+    font-family: 'Roboto', sans-serif;
+    font-size: 14px;
 }

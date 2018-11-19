@@ -20,7 +20,7 @@ powerupSFX.setAttribute("src", "./assets/rarecandy.mp3");
 selectFX.setAttribute("src", "./assets/beep.mp3");
 gameOverBGM.setAttribute("src", "./assets/failed.mp3");
 victoryBGM.setAttribute("src", "./assets/victory.mp3");
-var $mainContainer = $(".main-container");
+var $mainContainer = $(".game-container");
 var $aiBattle = $("#ai-pokemon"); //this is the ai pokemon sprite
 var $battleWindow = $(".battle-window");
 var $aiBattleArea = $(".ai-area"); //this is the actual ai battle div with sprite and hp and name
@@ -41,7 +41,7 @@ var aiDefeatedCount = 0;
 //var gameOver = false;
 
 var pokemon = {
-    name: ['Venusaur', 'Charizard', 'Blastoise', 'Vaporeon', 'Jolteon', 'Flareon'],
+    name: ['VENUSAUR', 'CHARIZARD', 'BLASTOISE', 'VAPOREON', 'JOLTEON', 'FLAREON'],
     //id: [0,1,2,3,4,5],
     hp: [360, 364, 362, 464, 334, 334], //char wass 364
     atkVal: [10, 1000, 8, 2, 100, 25], //char was 6, jolt was 100
