@@ -10,6 +10,10 @@
     background-color: white;
 }
 
+.battle-window{
+    min-height: 30em;
+}
+
 body{
     font-family: 'Roboto', sans-serif;
     font-size: 14px;
