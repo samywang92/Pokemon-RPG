@@ -44,7 +44,7 @@ var pokemon = {
     name: ['VENUSAUR', 'CHARIZARD', 'BLASTOISE', 'VAPOREON', 'JOLTEON', 'FLAREON'],
     //id: [0,1,2,3,4,5],
     hp: [360, 364, 362, 464, 334, 334], //char wass 364
-    atkVal: [10, 1000, 8, 2, 100, 25], //char was 6, jolt was 100
+    atkVal: [10, 6, 8, 2, 100, 25], //char was 6, jolt was 100
     atkName: ['Solar Beam', 'Fire Blast', 'Hydro Pump', 'Hydro Pump', 'Thunder', 'Fire Blast'],
     type1: ["grass", "fire", "water", "water", "electric", "fire"]
 };
